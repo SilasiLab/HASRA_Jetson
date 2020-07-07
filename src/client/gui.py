@@ -12,6 +12,8 @@ import os
 # MOUSE1, MOUSE2, MOUSE3, MOUSE4, MOUSE5. Do not use other names. This GUI gets instantiated in its own process that runs
 # concurrently with the SessionController process.
 #
+# Reads from ../../config/trialLimitConfig.txt and will throw without access to file
+#
 # Disclaimer: This was not well written. However, it's pretty straightforward. 
 # Create button -> Assign function to it -> Position it -> Pack it into tk frame.
 # Nothing fancy going on. Just note the dependancy tree is a mess and changing one thing 
@@ -40,8 +42,10 @@ class GUI:
 
 		self.front_back_box_list = []
 		self.left_right_box_list = []
+		self.up_down_box_list = []
 
 
+		# Could this for loop end at 5? Isn't the [5]th line blank?
 		with open(".."+os.sep+".."+os.sep+"config"+ os.sep +"trialLimitConfig.txt") as f:
 			for i in range(6):
 				self.triallimit_list.append(f.readline().rstrip())
