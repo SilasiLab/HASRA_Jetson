@@ -22,6 +22,8 @@ import os
 #
 # Most of the buttons are attached to a function that simply reads and writes to a profileState. They will also update text boxes
 # when appropriate. It's mostly clear just by reading it.
+#
+# TODO: glob file paths
 
 class GUI:
 
@@ -45,7 +47,7 @@ class GUI:
 		self.up_down_box_list = []
 
 
-		# Could this for loop end at 5? Isn't the [5]th line blank?
+		# Why do all these loops iterate 6x?
 		with open(".."+os.sep+".."+os.sep+"config"+ os.sep +"trialLimitConfig.txt") as f:
 			for i in range(6):
 				self.triallimit_list.append(f.readline().rstrip())
@@ -67,11 +69,13 @@ class GUI:
 		self.load_animal_profiles()
 		self.dists1 = [0, 0, 0, 0, 0, 0]
 		self.dists2 = [0, 0, 0, 0, 0, 0]
+		self.dists3 = [0, 0, 0, 0, 0, 0]
 
 		for mouse in range(1, 7):
 			profileIndex = self.find_profile_state_index(mouse)
-			self.dists1[mouse -1] = self.profileStates[profileIndex][4]
+			self.dists1[mouse - 1] = self.profileStates[profileIndex][4]
 			self.dists2[mouse - 1] = self.profileStates[profileIndex][5]
+			self.dists3[mouse - 1] = self.profileStates[profileIndex][6]
 
 		for i in range(6):
 			temp_label = Label(frame2, text="trial limitation")
@@ -91,21 +95,22 @@ class GUI:
 
 		frame_distance_front2back = Frame(master)
 		for i in range(6):
-			temp_label = Label(frame_distance_front2back, text="distance front 2 back.(F:15 B:0)")
+			temp_label = Label(frame_distance_front2back, text="distance front 2 back.(F:0 B:10)")
 			temp_label.pack(padx=5, side=LEFT)
 		frame_distance_front2back.pack()
 
+		# HASRA version had to=20
 		frame_fb_spin = Frame(master)
 		for i in range(6):
 			var = IntVar(value=int(self.dists1[i]))
-			fb_box = Spinbox(frame_fb_spin, from_=0, to=20, command=self.update_dist_fb, textvariable=var)
+			fb_box = Spinbox(frame_fb_spin, from_=0, to=15, command=self.update_dist_fb, textvariable=var)
 			fb_box.pack(padx=40, side=LEFT)
 			self.front_back_box_list.append(fb_box)
 		frame_fb_spin.pack()
 
 		frame_distance_left2right = Frame(master)
 		for i in range(6):
-			temp_label = Label(frame_distance_left2right, text="distance left 2 right.(R:0 L:15)")
+			temp_label = Label(frame_distance_left2right, text="distance left 2 right.(R:0 L:10)")
 			temp_label.pack(padx=5, side=LEFT)
 		frame_distance_left2right.pack()
 
@@ -116,6 +121,20 @@ class GUI:
 			lr_box.pack(padx=40, side=LEFT)
 			self.left_right_box_list.append(lr_box)
 		frame_lr_spin.pack()
+
+		frame_distance_up2down = Frame(master)
+		for i in range(6):
+			temp_label = Label(frame_distance_up2down, text="distance up 2 down.(D:0 U:12)")
+			temp_label.pack(padx=5, side=LEFT)
+		frame_distance_up2down.pack()
+
+		frame_ud_spin = Frame(master)
+		for i in range(6):
+			var = IntVar(value=int(self.dists3[i]))
+			ud_box = Spinbox(frame_ud_spin, from_=0, to=15, command=self.update_dist_ud, textvariable=var)
+			ud_box.pack(padx=40, side=LEFT)
+			self.up_down_box_list.append(ud_box)
+		frame_ud_spin.pack()
 
 		frame42 = Frame(master)
 		self.label = Label(frame42, text="\nPellet Presentation Distance(mm)")
@@ -139,6 +158,11 @@ class GUI:
 	def update_dist_lr(self):
 		for i in range(6):
 			self.dists2[i] = self.left_right_box_list[i].get()
+		self.on_update()
+
+	def update_dist_ud(self):
+		for i in range(6):
+			self.dists3[i] = self.up_down_box_list[i].get()
 		self.on_update()
 
 	def load_animal_profiles(self):
@@ -170,7 +194,7 @@ class GUI:
 
 			self.profileSaveFilePaths.append(loadFile)
 
-
+	# Does len(profileIndex) always == 10? or will this throw sometimes?
 	def save_animal_profile(self, profileIndex):
 
 		with open(self.profileSaveFilePaths[profileIndex], 'w') as save:
@@ -183,7 +207,7 @@ class GUI:
 			save.write(str(self.profileStates[profileIndex][6]) + "\n")
 			save.write(str(self.profileStates[profileIndex][7]) + "\n")
 			save.write(str(self.profileStates[profileIndex][8]) + "\n")
-
+			save.write(str(self.profileStates[profileIndex][9]) + "\n")
 
 
 	# Since the profiles might be loaded into <profileStates> in an arbitrary order,
@@ -207,6 +231,7 @@ class GUI:
 			profileIndex = self.find_profile_state_index(i)
 			self.profileStates[profileIndex][4] = self.dists1[i - 1]
 			self.profileStates[profileIndex][5] = self.dists2[i - 1]
+			self.profileStates[profileIndex][6] = self.dists3[i - 1]
 			self.save_animal_profile(profileIndex)
 
 	def update_button_onClick(self):
