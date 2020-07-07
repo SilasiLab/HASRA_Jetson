@@ -80,7 +80,9 @@ def resetAnimalProfileTrialsToday():
         mouse4TrialsToday = 0
         mouse5TrialsToday = 0
 
-
+# Profile_save_directory files have to be be formatted properly to load
+# into this func. The older versions will not include a line to configure
+# the difficulty_dist_mm3 variable (height)
 def loadAnimalProfiles(profile_save_directory):
     # Get list of profile folders
     profile_names = os.listdir(profile_save_directory)
@@ -110,10 +112,11 @@ def loadAnimalProfiles(profile_save_directory):
         cageNumber = profile_state[3]
         difficulty_dist_mm1 = profile_state[4]
         difficulty_dist_mm2 = profile_state[5]
-        dominant_hand = profile_state[6]
-        session_count = profile_state[7]
+        difficulty_dist_mm3 = profile_state[6]
+        dominant_hand = profile_state[7]
+        session_count = profile_state[8]
         animal_profile_directory = load_file.replace(name + "_save.txt", "")
-        temp = AnimalProfile(ID, name, mouseNumber, cageNumber, difficulty_dist_mm1, difficulty_dist_mm2, dominant_hand, session_count,
+        temp = AnimalProfile(ID, name, mouseNumber, cageNumber, difficulty_dist_mm1, difficulty_dist_mm2, difficulty_dist_mm3, dominant_hand, session_count,
                              animal_profile_directory, False)
         profiles.append(temp)
 
@@ -141,7 +144,7 @@ class AnimalProfile(object):
     #        video_save_directory: A path to where the videos for this animal are stored. This path will be inside [./<animal_profile_directory>/<animal_name>/]
     #        log_save_directory: A path to where the logs for this animal are stored. This pathh will be inside [./<animal_profile_directory/<animal_name/]
 
-    def __init__(self, ID, name, mouseNumber, cageNumber, difficulty_dist_mm1, difficulty_dist_mm2, dominant_hand, session_count,
+    def __init__(self, ID, name, mouseNumber, cageNumber, difficulty_dist_mm1, difficulty_dist_mm2, difficulty_dist_mm3, dominant_hand, session_count,
                  profile_save_directory, is_new):
 
         self.ID = str(ID)
@@ -150,6 +153,7 @@ class AnimalProfile(object):
         self.cageNumber = str(cageNumber)
         self.difficulty_dist_mm1 = int(difficulty_dist_mm1)
         self.difficulty_dist_mm2 = int(difficulty_dist_mm2)
+        self.difficulty_dist_mm3 = int(difficulty_dist_mm3)
         self.dominant_hand = str(dominant_hand)
         self.session_count = int(session_count)
 
@@ -185,6 +189,7 @@ class AnimalProfile(object):
             save.write(str(self.cageNumber) + "\n")
             save.write(str(self.difficulty_dist_mm1) + "\n")
             save.write(str(self.difficulty_dist_mm2) + "\n")
+            save.write(str(self.difficulty_dist_mm3) + "\n")
             save.write(str(self.dominant_hand) + "\n")
             save.write(str(self.session_count) + "\n")
             save.write(str(self.animal_profile_directory) + "\n")
@@ -209,7 +214,7 @@ class AnimalProfile(object):
         end_date = time.strftime("%d-%b-%Y", time.localtime(end_timestamp))
         end_time = time.strftime("%H:%M:%S", time.localtime(end_timestamp))
         csv_entry = str(self.session_count) + "," + str(self.name) + "," + str(self.ID) + "," + str(
-            trial_count) + "," + str(successful_count) + "," + str(self.difficulty_dist_mm1) + "," + str(self.difficulty_dist_mm2) + "," + str(
+            trial_count) + "," + str(successful_count) + "," + str(self.difficulty_dist_mm1) + "," + str(self.difficulty_dist_mm2) + "," + str(self.difficulty_dist_mm3) + "," + str(
             self.dominant_hand) + "," + start_date + "," + start_time + "," + end_date + "," + end_time + "\n"
         if not os.path.exists(session_history):
             with open(session_history, "w") as log:
@@ -321,10 +326,13 @@ class SessionController(object):
 
         stepperMsg1 = scale_stepper_dist(profile.difficulty_dist_mm1)
         stepperMsg2 = scale_stepper_dist(profile.difficulty_dist_mm2)
+        servoMsg = scale_stepper_dist(profile.difficulty_dist_mm3)
 
         self.arduino_client.serialInterface.write(stepperMsg1.encode())
         self.arduino_client.serialInterface.write(stepperMsg2.encode())
-        print(stepperMsg1, stepperMsg2)
+        self.arduino_client.serialInterface.write(servoMsg.encode())
+
+        print(stepperMsg1, stepperMsg2, servoMsg)
 
         # Main session loop. Runs until it receives TERM sig from server. Polls
         # the camera queue for GETPEL messages and forwards to server if it receives one.
