@@ -32,9 +32,11 @@ Servo servo1;
 bool servo1_up_flag = false;
 const int SERVO_SETTLE_DELAY = 300;
 // Higher numbers make the arm go higher
-int SERVO1_UP_POS = 98;
+int SERVO1_UP_POS;
 // Low numbers makehe arm go lower
 int SERVO1_DOWN_POS = 160;
+
+float swing_arm_radius=48.85;
 
 int SERVO_PULSE_DELAY = 16;
 int servo1Pos = SERVO1_DOWN_POS;
@@ -63,7 +65,7 @@ volatile byte switchState2 = digitalRead(switchPin2);
 volatile byte IRState = digitalRead(IRBreakerPin);
 
 int stepperDistFromOrigin = -1;
-double stepsToMmRatio = 420;
+double stepsToMmRatio = 200/0.35;
 
 void handleSwitchChange1() {
   switchState1 = digitalRead(switchPin1);
@@ -147,7 +149,7 @@ int displayPellet() {
   return 1;
 }
 
-int moveStepper_both(int targetPos1, int targetPos2) {
+int moveStepper_both(int targetPos1, int targetPos2, int servoDistInt) {
   digitalWrite(step1_sleep, HIGH);
   digitalWrite(step2_sleep, HIGH);
   //delay(100);
@@ -163,8 +165,7 @@ int moveStepper_both(int targetPos1, int targetPos2) {
   else{step1 = 1; digitalWrite(step1_left, LOW);}
   if(targetPos2 > 0){step2 = -1; digitalWrite(step2_left, LOW);}
   else{step2 = 1; digitalWrite(step2_left, HIGH);}
-  
-  int count1 = targetPos1 * stepsToMmRatio;
+  int count1 = targetPos1 * stepsToMmRatio - stepsToMmRatio*(swing_arm_radius-swing_arm_radius*cos(asin(float(servoDistInt)/swing_arm_radius)));
   int count2 = targetPos2 * stepsToMmRatio;
   
   while((count1 != 0) || (count2 != 0))
@@ -292,6 +293,8 @@ int startSession() {
     char stepperDist2;
     int stepperDistInt1;
     int stepperDistInt2;
+    char servoDist;
+    int servoDistInt;
     if(Serial.available() > 0) {
       cmd = Serial.read();
       
@@ -318,11 +321,18 @@ int startSession() {
           
           stepperDist2 = Serial.read();
 
+          //delay200);
+          if (my_delay(200)==0){return 0;}
+          servoDist = Serial.read();
+          if (isDigit(servoDist)){servoDistInt = servoDist - '0';}
+          else{servoDistInt = 10 + servoDist - 'a';}
+          SERVO1_UP_POS = int(90+asin(float(servoDistInt)/swing_arm_radius)*180/3.14);
+
           if (isDigit(stepperDist1)){stepperDistInt1 = stepperDist1 - '0';}
           else{stepperDistInt1 = 10 + stepperDist1 - 'a';}
           if (isDigit(stepperDist2)){stepperDistInt2 = stepperDist2 - '0';}
           else{stepperDistInt2 = 10 + stepperDist2 - 'a';}
-          if (moveStepper_both(stepperDistInt1, stepperDistInt2) == 0){return 0;} 
+          if (moveStepper_both(stepperDistInt1, stepperDistInt2, servoDistInt) == 0){return 0;} 
           break;
         case ('4'):
           if(displayPellet() == 0){return 0;}
@@ -367,7 +377,7 @@ void test_servo(){
 
 void test_stepper(){
   zeroStepper_both();
-  moveStepper_both(7, 11);
+  moveStepper_both(7, 11, 0);
 }
 
 void loop(){
