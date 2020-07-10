@@ -87,7 +87,7 @@ def check_safe_file(loacl_file_path):
 
 
 
-def googleDriveManager(interval=20, min_interval=10, cage_id=1, mice_n=4, gdrive_local=r"G:\Shared drives\SilasiLabGdrive"):
+def googleDriveManager(interval=20, min_interval=10, cage_id=1, mice_n=4, gdrive_local=r"G:\Shared drives\Home Cage Reaching"):
 
     ctypes.windll.kernel32.SetConsoleTitleW("BackupAuto Homecage-%d"%cage_id)
     gdrive_rootDir = os.path.join(gdrive_local, "homecage_%d_sync" % cage_id)
@@ -207,12 +207,24 @@ def is_locked(filepath):
 
 if __name__ == '__main__':
     print(os.getcwd())
-    cage_index = [item for item in os.getcwd().split(os.sep)
-                  if 'hasra' in item.lower()][0].split('_')[-1]
-    if cage_index.isdigit():
-        cage_index = int(cage_index)
-    else:
-        cage_index = 1
+    # cage_index = [item for item in os.getcwd().split(os.sep)
+    #              if 'hasra' in item.lower()][0].split('_')[-1]
+    # if cage_index.isdigit():
+    #    cage_index = int(cage_index)
+
+    with open(".." + os.sep + ".." + os.sep + "AnimalProfiles" + os.sep + "MOUSE1" + os.sep + "MOUSE1_save.txt") as f:
+        tmp = ""
+        for _ in range(4):
+            tmp = f.readline()
+        cage_index = tmp
+    cage_index = int(cage_index)
+    print(type(cage_index), cage_index)
+
+    # if cage_index.isdigit():
+       # cage_index = int(cage_index)
+    
+    # else:
+        # cage_index = 1
     if len(sys.argv) > 1:
         gdrive_local = sys.argv[1]
         googleDriveManager(interval=300, min_interval=5, cage_id=cage_index, mice_n=5, gdrive_local=gdrive_local)

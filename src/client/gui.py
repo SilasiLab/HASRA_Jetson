@@ -263,7 +263,7 @@ class GUI:
 # we don't want it tying up the parent process. This is bad practice but it's easy
 # so I'm leaving it for now.
 def start_gui_loop(animalProfilePath):
-	cage_index = [item for item in os.getcwd().split(os.sep) if 'homecagesinglepellet' in item.lower()][0].split('_')[-1]
+	cage_index = [item for item in os.getcwd().split(os.sep) if 'hasrav2' in item.lower()][0].split('_')[-1]
 	if cage_index.isdigit():
 		cage_index = int(cage_index)
 	else:

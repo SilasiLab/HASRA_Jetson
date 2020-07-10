@@ -1,3 +1,7 @@
+from warnings import simplefilter 
+simplefilter(action='ignore', category=FutureWarning)
+simplefilter(action='ignore', category=UserWarning)
+
 import keras
 import os
 import keras.backend as K
@@ -5,6 +9,7 @@ from data_utils import prepare_for_training
 import numpy as np
 import cv2
 from keras.preprocessing.image import ImageDataGenerator
+
 class Detector():
     def __init__(self, weights_path="None"):
         self.weights_path = None

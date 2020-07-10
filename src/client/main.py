@@ -455,8 +455,8 @@ def sys_init():
         COM1 = str(sys.argv[1])
         COM2 = str(sys.argv[2])
     else:
-        COM1 = '1'
-        COM2 = '2'
+        COM1 = '3'
+        COM2 = '4'
     arduino_client = arduinoClient.client("COM" + COM1, 9600)
     ser = serial.Serial('COM' + COM2, 9600)
 

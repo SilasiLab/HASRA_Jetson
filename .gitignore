@@ -1,0 +1,7 @@
+*.log
+*.avi
+*.swp
+*.pyc
+*AnimalProfiles
+*config
+*idea
