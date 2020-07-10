@@ -457,6 +457,7 @@ def sys_init():
     else:
         COM1 = '3'
         COM2 = '4'
+    print('If your program is stuck here please check COM port configuration in main.py's sys_init func')
     arduino_client = arduinoClient.client("COM" + COM1, 9600)
     ser = serial.Serial('COM' + COM2, 9600)
 
