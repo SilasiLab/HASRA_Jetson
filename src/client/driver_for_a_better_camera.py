@@ -54,7 +54,7 @@ class FPS_camera:
 
 class WebcamVideoStream:
     def __init__(self, src=0, width=1280, height=720):
-
+    # def __init__(self, src=0, width=640, height=240):
 
         # If you are under windows system using Dshow as backend
         if platform.system() == 'Windows':
@@ -64,6 +64,7 @@ class WebcamVideoStream:
             self.height = height
             ret1 = self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
             ret2 = self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 360)
+            # ret2 = self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
             # ret1 = self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
             # ret2 = self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
             ret3 = self.stream.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0.25)
@@ -143,7 +144,8 @@ class Recoder():
     def __init__(self, savePath='test.avi', show=False, vs=None):
         self.fourcc = cv2.VideoWriter_fourcc(*'MJPG')
         # self.writer = cv2.VideoWriter(savePath, self.fourcc, 100.0, (1280, 720), False)
-        self.writer = cv2.VideoWriter(savePath, self.fourcc, 60.0, (640, 360), False)
+        # self.writer = cv2.VideoWriter(savePath, self.fourcc, 60.0, (1280, 720), False)
+        self.writer = cv2.VideoWriter(savePath, self.fourcc, 60.0, (640, 240), False) # changed from 640, 360
         self.stopped = False
         self.FPS = FPS_camera()
         self.vs = vs
