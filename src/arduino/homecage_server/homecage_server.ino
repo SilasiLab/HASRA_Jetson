@@ -40,6 +40,8 @@ float swing_arm_radius=48.85;
 
 int SERVO_PULSE_DELAY = 16;
 int servo1Pos = SERVO1_DOWN_POS;
+bool interupt = false;
+int currPos;
 
 
 typedef enum {x, y} whichStepper;
@@ -112,7 +114,7 @@ int lowerServo1(){
   for (int i = servo1Pos; i <= SERVO1_DOWN_POS; i += 1) {
       servo1.write(i);
       delay(SERVO_PULSE_DELAY);
-    }   
+    }
   delay(SERVO_SETTLE_DELAY);
   servo1Pos = SERVO1_DOWN_POS;
   
@@ -120,13 +122,49 @@ int lowerServo1(){
   return 1;
 }
 
+//int displayPellet() {
+//    
+//  servo1.attach(servo1Pin);
+//
+//  // Lower arm to grab pellet.
+//  for (int i = servo1Pos; i <= SERVO1_DOWN_POS; i += 1) {
+//    if (digitalRead(IRBreakerPin)){interupt = true;}
+//    servo1.write(i);
+//    currPos -= i;
+//    //delay(SERVO_PULSE_DELAY);
+//    if (my_delay(SERVO_PULSE_DELAY) == 0){interupt = true;}
+//  }   
+//  // Raise arm to display pellet
+//  if (my_delay(SERVO_PULSE_DELAY) == 0){interupt = true;}
+//  
+//  for (int i = SERVO1_DOWN_POS; i >= SERVO1_UP_POS; i -= 1) {
+//    if (digitalRead(IRBreakerPin)){interupt = true;}
+//    servo1.write(i);
+//    currPos += i;
+//    //delay(SERVO_PULSE_DELAY);
+//    if (my_delay(SERVO_PULSE_DELAY) == 0){interupt = true;}
+//  }  
+//  
+//  if (my_delay(SERVO_SETTLE_DELAY) == 0){interupt = true;}
+//
+//
+//  if (interupt){
+//    servo1.detach();return 0;
+//  }
+//  servo1Pos = SERVO1_UP_POS;
+//  servo1_up_flag = true;
+//  servo1.detach();
+//  return 1;
+//}
+
 int displayPellet() {
     
   servo1.attach(servo1Pin);
 
   // Lower arm to grab pellet.
   for (int i = servo1Pos; i <= SERVO1_DOWN_POS; i += 1) {
-    if (digitalRead(IRBreakerPin)){servo1.detach();return 0;}
+    if (digitalRead(IRBreakerPin)){
+      servo1.detach();return 0;}
     servo1.write(i);
     //delay(SERVO_PULSE_DELAY);
     if (my_delay(SERVO_PULSE_DELAY) == 0){servo1.detach();return 0;}
@@ -139,7 +177,7 @@ int displayPellet() {
     servo1.write(i);
     //delay(SERVO_PULSE_DELAY);
     if (my_delay(SERVO_PULSE_DELAY) == 0){servo1.detach();return 0;}
-  }
+  }  
   
   if (my_delay(SERVO_SETTLE_DELAY) == 0){servo1.detach();return 0;}
 
@@ -335,7 +373,8 @@ int startSession() {
           if (moveStepper_both(stepperDistInt1, stepperDistInt2, servoDistInt) == 0){return 0;} 
           break;
         case ('4'):
-          if(displayPellet() == 0){return 0;}
+          if(displayPellet() == 0){
+            return 0;}
           break;
         default:
           break;
@@ -343,6 +382,18 @@ int startSession() {
     }
     
   }
+
+//  // Raise arm to display pellet
+//  if (my_delay(SERVO_PULSE_DELAY) == 0){interupt = true;}
+//  
+//  for (int i = servo1Pos; i >= SERVO1_UP_POS; i -= 1) {
+//    if (digitalRead(IRBreakerPin)){interupt = true;}
+//    servo1.write(i);
+//    //delay(SERVO_PULSE_DELAY);
+//    if (my_delay(SERVO_PULSE_DELAY) == 0){interupt = true;}
+//  }  
+
+  
   if(servo1_up_flag)
   {
     lowerServo1();
@@ -383,8 +434,8 @@ void test_stepper(){
 void loop(){
   boolean DEBUG = false;
   if(DEBUG){
-    test_stepper();
-    displayPellet();
+    zeroStepper_both();
+
 
     digitalWrite(digitalSwitchPin, HIGH);
   }
@@ -396,7 +447,11 @@ void loop(){
     Serial.write("TERM\n");
     digitalWrite(digitalSwitchPin, LOW);
     zeroServos();
-    zeroStepper_both();
+    displayPellet();
+    zeroServos();
+    test_servo();
+    test_stepper();
+
     
     }
   }

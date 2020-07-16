@@ -2,6 +2,7 @@
 *.avi
 *.swp
 *.pyc
+*.jpg
 *AnimalProfiles
 *config
 *idea
