@@ -146,6 +146,7 @@ class Recoder():
         # self.writer = cv2.VideoWriter(savePath, self.fourcc, 100.0, (1280, 720), False)
         # self.writer = cv2.VideoWriter(savePath, self.fourcc, 60.0, (1280, 720), False)
         self.writer = cv2.VideoWriter(savePath, self.fourcc, 60.0, (640, 240), False) # changed from 640, 360
+        # self.writer = cv2.VideoWriter(savePath, self.fourcc, 60.0, (1280, 480), False) # changed from 640, 360
         self.stopped = False
         self.FPS = FPS_camera()
         self.vs = vs
@@ -165,12 +166,25 @@ class Recoder():
         start_time = datetime.datetime.now()
         global DETECT_FLAG
 
+        prevTime = 0
+
         while True:
             time_iter_start = datetime.datetime.now()
             if self.stopped:
                 break
 
+            curTime = time.time() #
+            sec = curTime - prevTime #
+            prevTime = curTime #
+
+            fps = 1/(sec) #
+
+            msg = "FPS : %0.1f" % fps #
+
             frame = self.vs.read()
+
+            cv2.putText(frame, msg, (0, 220), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0)) # 
+
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             if not self.show:
                 self.writer.write(gray)

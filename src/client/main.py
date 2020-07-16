@@ -448,6 +448,7 @@ def launch_gui():
 
 
 # This function initializes all the high level system components, returning a handle to each one.
+# COM1 is the arduino, COM2 is the RFID tag reader
 def sys_init():
     # print(PROFILE_SAVE_DIRECTORY)
     profile_list = loadAnimalProfiles(PROFILE_SAVE_DIRECTORY)
