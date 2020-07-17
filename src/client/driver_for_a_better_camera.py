@@ -62,8 +62,8 @@ class WebcamVideoStream:
             print(self.stream.isOpened())
             self.width = width
             self.height = height
-            ret1 = self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-            ret2 = self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 360)
+            ret1 = self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 1280) #640
+            ret2 = self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 480) # 360
             # ret2 = self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
             # ret1 = self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
             # ret2 = self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
@@ -86,7 +86,7 @@ class WebcamVideoStream:
 
         ret5 = self.stream.set(cv2.CAP_PROP_AUTOFOCUS, 0)
         ret6 = self.stream.set(cv2.CAP_PROP_BRIGHTNESS, 0.0)
-        ret7 = self.stream.set(cv2.CAP_PROP_FPS, 60)
+        ret7 = self.stream.set(cv2.CAP_PROP_FPS, 60) # was 60
         ret8 = self.stream.set(cv2.CAP_PROP_CONTRAST, 0)
         print(ret1, ret2, ret3, ret4, ret5, ret6, ret7, ret8)
 
@@ -145,7 +145,7 @@ class Recoder():
         self.fourcc = cv2.VideoWriter_fourcc(*'MJPG')
         # self.writer = cv2.VideoWriter(savePath, self.fourcc, 100.0, (1280, 720), False)
         # self.writer = cv2.VideoWriter(savePath, self.fourcc, 60.0, (1280, 720), False)
-        self.writer = cv2.VideoWriter(savePath, self.fourcc, 60.0, (640, 240), False) # changed from 640, 360
+        self.writer = cv2.VideoWriter(savePath, self.fourcc, 60.0, (1280, 480), False) # changed from 640, 360, fps was 60 then was 640, 240
         # self.writer = cv2.VideoWriter(savePath, self.fourcc, 60.0, (1280, 480), False) # changed from 640, 360
         self.stopped = False
         self.FPS = FPS_camera()
@@ -183,7 +183,7 @@ class Recoder():
 
             frame = self.vs.read()
 
-            cv2.putText(frame, msg, (0, 220), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0)) # 
+            cv2.putText(frame, msg, (0, 220), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255)) # 
 
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             if not self.show:
