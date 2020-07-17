@@ -67,8 +67,8 @@ class WebcamVideoStream:
             # ret2 = self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
             # ret1 = self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
             # ret2 = self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
-            ret3 = self.stream.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0.25)
-            ret4 = self.stream.set(cv2.CAP_PROP_EXPOSURE, -3)
+            ret3 = self.stream.set(cv2.CAP_PROP_AUTO_EXPOSURE, 5) # was 0.25
+            ret4 = self.stream.set(cv2.CAP_PROP_EXPOSURE, -7) # -5 == 2**-5 == 1/32 seconds
             # ret4 = self.stream.set(cv2.CAP_PROP_EXPOSURE, -11)
         # If not go next line
         else:
@@ -78,7 +78,7 @@ class WebcamVideoStream:
             self.height = height
             ret1 = self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
             ret2 = self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
-            ret3 = self.stream.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0.25)
+            ret3 = self.stream.set(cv2.CAP_PROP_AUTO_EXPOSURE, -5) # was 0.25
             print("camera")
             ret4 = self.stream.set(cv2.CAP_PROP_EXPOSURE, 0.001)
 
