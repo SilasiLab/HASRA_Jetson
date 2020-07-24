@@ -147,7 +147,10 @@ class Recoder():
         self.fourcc = cv2.VideoWriter_fourcc(*'MJPG')
         # self.writer = cv2.VideoWriter(savePath, self.fourcc, 100.0, (1280, 720), False)
         # self.writer = cv2.VideoWriter(savePath, self.fourcc, 60.0, (1280, 720), False)
-        self.writer = cv2.VideoWriter(savePath, self.fourcc, 60.0, (1280, 480), False) # changed from 640, 360, fps was 60 then was 640, 240
+        self.writer = cv2.VideoWriter(savePath, self.fourcc, 60.0, (1280, 480), False) # changed from 640, 360, fps was 60 then was 640, 240... was last working with this line
+        self.recording_w = int(self.width//2 + self.width//5) - int(self.width//2 - self.width//5.5)
+        self.recording_h = int(self.height) - int(self.height//2 - self.height//5.5)
+        self.writer = cv2.VideoWriter(savePath, self.fourcc, 60.0, (self.recording_w, self.recording_h), False)
         # self.writer = cv2.VideoWriter(savePath, self.fourcc, 60.0, (1280, 480), False) # changed from 640, 360
         self.stopped = False
         self.FPS = FPS_camera()
@@ -191,9 +194,9 @@ class Recoder():
 
 
             # pixel coords for cropping frame
-            # note: you can comment this block of code out to record the entire fov of the cameras
-            start_row, start_col = int(h//2 - h//5.5), int(w//2 - w//5.5)
-            end_row, end_col = int(h), int(w//2 + w//5)
+            # note: you can comment this block of code out to record the entire fov of the lenses
+            start_row, start_col = int(self.height//2 - self.height//5.5), int(self.width//2 - self.width//5.5)
+            end_row, end_col = int(self.height), int(self.width//2 + self.width//5)
             frame = frame[start_row:end_row , start_col:end_col]
 
             cv2.putText(frame, msg, (50, 80), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255)) #  		
