@@ -183,7 +183,7 @@ class Recoder():
 
             frame = self.vs.read()
 
-            cv2.putText(frame, msg, (0, 220), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255)) # 
+            cv2.putText(frame, msg, (450, 210), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255)) #  		
 
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             if not self.show:

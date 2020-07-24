@@ -1,5 +1,4 @@
 from collections import Counter, defaultdict
-
 import cv2
 import numpy as np
 import os
@@ -20,7 +19,6 @@ note2: if you want to use >99 calibration images (num_cal_imgs > 99), please cha
        in the load_vid method. I don't know if DeepLabCut can handle for this.
 note3: there must be at least num_cal_imgs*3 frames within (end_time - start_time) or
        gen_sample will throw, that is a bare minimum though and should not be used
-
 note4: make sure the lines at the bottom that instantiate this class and run its method are not commented out
 
 params:
@@ -37,34 +35,12 @@ vid_name = r'2020-07-23_(11-45-24)_00783A32F484_16_2015.avi'
 start_time = 11
 end_time = 29
 
-
-params:
-vid_path = r'/home/gavin/Documents/python_projects/DLC/DeepLabCut/deeplabcut/projects/stereo_cam_test1-silasi_lab-2020-07-21-3d/2020-07-21_(09-02-58)_00782B1B4A02_16_2022.avi'
-project_path = '/home/gavin/Documents/python_projects/DLC/DeepLabCut/deeplabcut/projects/stereo_cam_test1-silasi_lab-2020-07-21-3d'
-start_time = 6
-end_time = 13
-
-TODO: use os.sep, needs to be added for Windows compatibility
-'''
-
-vid_path = r'/home/gavin/Documents/python_projects/DLC/DeepLabCut/deeplabcut/projects/stereo_cam_test1-silasi_lab-2020-07-21-3d/2020-07-21_(09-02-58)_00782B1B4A02_16_2022.avi'
-project_path = '/home/gavin/Documents/python_projects/DLC/DeepLabCut/deeplabcut/projects/stereo_cam_test1-silasi_lab-2020-07-21-3d'
-start_time = 6
-end_time = 13
-
-
 seed(2020)
 
-
 class VidLoader:
-    def __init__(self, project_name, vid_name, start_time, end_time, num_cal_imgs=300):
-        self.project_name = project_name
-        self.vid_name = vid_name
-
     def __init__(self, project_path, vid_path, start_time, end_time, num_cal_imgs=70):
         self.project_path = project_path
         self.vid_path = vid_path
-
         self.start_time = start_time
         self.end_time = end_time
         self.num_cal_imgs = num_cal_imgs
@@ -78,10 +54,7 @@ class VidLoader:
 
     def load_vid(self):
         # Playing video from file:
-
         cap = cv2.VideoCapture(os.getcwd() + os.sep + self.project_name + os.sep + self.vid_name)
-
-        cap = cv2.VideoCapture(self.vid_path)
 
         # get height and width from opencv and print to console
         if cap.isOpened():
@@ -96,8 +69,6 @@ class VidLoader:
         try:
             if not os.path.exists(os.getcwd() + os.sep + self.project_name + os.sep + 'calibration_images'):
                 os.makedirs(os.getcwd() + os.sep + self.project_name + os.sep + 'calibration_images')
-            if not os.path.exists(self.project_path + '/calibration_images'):
-                os.makedirs(self.project_path + '/calibration_images')
         except OSError:
             print ('Error: Creating directory of data')
 
@@ -126,37 +97,21 @@ class VidLoader:
             ###################### cropping inner ~1/3 of each 1/2 of the combined frames
             # pixel coords of left cam
             start_row, start_col = int(h//2 - h//5.5), int(w//2 - w//5.5)
-
-            # pixel coords of left cam
-            start_row, start_col = int(0), int(0)
-
             end_row, end_col = int(h), int(w * .5)
             cropped_left = frame[start_row:end_row , start_col:end_col]
 
             # pixel coords of right cam
-
             start_row, start_col = int(h//2 - h//5.5), int(w * .5)
             end_row, end_col = int(h), int(w//2 + w//5.5)
-
-            start_row, start_col = int(0), int(w * .5)
-            end_row, end_col = int(h), int(w)
-
             cropped_right = frame[start_row:end_row , start_col:end_col]
 
             # Saves image of the current frame in jpg file if frame # is in the sample
 
             if current_frame in sample_frames:
-
                 name1 = os.getcwd() + os.sep + self.project_name + os.sep + 'calibration_images' + os.sep + 'camera-1-' + str(sample_frame_cnt).zfill(3) + '.jpg'
                 cv2.imwrite(name1, cropped_left)
 
                 name2 = os.getcwd() + os.sep + self.project_name + os.sep + 'calibration_images' + os.sep + 'camera-2-' + str(sample_frame_cnt).zfill(3) + '.jpg'
-
-                name1 = self.project_path + '/calibration_images/' + 'camera-1-' + str(sample_frame_cnt).zfill(2) + '.jpg'
-                cv2.imwrite(name1, cropped_left)
-
-                name2 = self.project_path + '/calibration_images/' + 'camera-2-' + str(sample_frame_cnt).zfill(2) + '.jpg'
-
                 cv2.imwrite(name2, cropped_right)
                 sample_frame_cnt += 1
 
