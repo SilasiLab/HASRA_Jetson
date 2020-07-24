@@ -142,6 +142,8 @@ class WebcamVideoStream:
 class Recoder():
 
     def __init__(self, savePath='test.avi', show=False, vs=None):
+        self.width = 1280
+        self.height = 480
         self.fourcc = cv2.VideoWriter_fourcc(*'MJPG')
         # self.writer = cv2.VideoWriter(savePath, self.fourcc, 100.0, (1280, 720), False)
         # self.writer = cv2.VideoWriter(savePath, self.fourcc, 60.0, (1280, 720), False)
@@ -166,6 +168,9 @@ class Recoder():
         start_time = datetime.datetime.now()
         global DETECT_FLAG
 
+        h = 480
+        w = 1280
+
         prevTime = 0
 
         while True:
@@ -183,7 +188,15 @@ class Recoder():
 
             frame = self.vs.read()
 
-            cv2.putText(frame, msg, (450, 210), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255)) #  		
+
+
+            # pixel coords for cropping frame
+            # note: you can comment this block of code out to record the entire fov of the cameras
+            start_row, start_col = int(h//2 - h//5.5), int(w//2 - w//5.5)
+            end_row, end_col = int(h), int(w//2 + w//5)
+            frame = frame[start_row:end_row , start_col:end_col]
+
+            cv2.putText(frame, msg, (50, 80), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255)) #  		
 
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             if not self.show:
