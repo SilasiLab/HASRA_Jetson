@@ -192,7 +192,8 @@ class del_single_frames:
 '''
 This class splits videos along the y-axis.
 To use this class simple make an instance of the class and pass the directory of the videos
-you want to split and the project name. The output will be saved as avi files to
+you want to split and the project name. Then call the video_file_splitter method.
+The output will be saved as avi files to
 [your project dir]/split_videos.
 Be careful if you want to change the variables because the
 videowriter object will break very easily.
