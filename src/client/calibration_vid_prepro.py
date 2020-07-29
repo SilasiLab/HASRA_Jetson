@@ -189,6 +189,96 @@ class del_single_frames:
 
         return
 
+'''
+This class splits videos along the y-axis.
+To use this class simple make an instance of the class and pass the directory of the videos
+you want to split and the project name. The output will be saved as avi files to
+[your project dir]/split_videos.
+Be careful if you want to change the variables because the
+videowriter object will break very easily.
+'''
+
+
+class split_vids:
+    def __init__(self, videos_dir_path, project_name):
+        self.videos_dir_path = videos_dir_path
+        self.project_name = project_name
+
+    def video_file_splitter(self):
+        # output avis will be stored in [your project dir]/split_videos
+        try:
+            if not os.path.exists(os.getcwd() + os.sep + self.project_name + os.sep + 'split_videos'):
+                os.makedirs(os.getcwd() + os.sep + self.project_name + os.sep + 'split_videos')
+        except OSError:
+            print ('Error: Creating directory of data')
+        
+        output_dir = os.getcwd() + os.sep + self.project_name + os.sep + 'split_videos'
+
+        vids2split = []
+        num_vids = 0
+        for f in os.listdir(os.getcwd() + os.sep + self.project_name + os.sep + self.videos_dir_path):
+            if f[-3:] == 'mp4' or f[-3:] == 'avi':
+                vids2split.append(f)
+                num_vids += 1
+        if num_vids < 1:
+            print('videos not found: please check path to videos folder and try again')
+        else:
+            print('splitting {} video(s)'.format(num_vids))
+        
+        while vids2split:
+            curr = vids2split.pop()
+
+            cap = cv2.VideoCapture(os.getcwd() + os.sep + self.project_name + os.sep + self.videos_dir_path + os.sep + curr)
+
+            # get height and width from opencv
+            if cap.isOpened():
+                w = cap.get(3) # 3 = cv2.CAP_PROP_FRAME_WIDTH
+                h = cap.get(4) # 4 = cv2.CAP_PROP_FRAME_HEIGHT
+                fps = cap.get(5) # 5 is FPS and returned 60 (correct)... but 7 is frame count and returned 1206fps for some reason
+                print('video height and width: {}, {}'.format(h, w))
+                print('fps: ', fps)
+
+            left_fn = output_dir + os.sep + 'camera-1-' + curr[:-4] + '.avi'
+            right_fn = output_dir + os.sep + 'camera-2-' + curr[:-4] + '.avi'
+
+            fourcc = cv2.VideoWriter_fourcc(*'MJPG')
+            out2 = cv2.VideoWriter(right_fn, fourcc, fps, (int(w//2),int(h)), False)
+            out1 = cv2.VideoWriter(left_fn, fourcc, fps, (int(w//2),int(h)), False)
+
+            while(True):
+                ret, frame = cap.read()
+                if ret:
+                    gray = cv2.cvtColor(src=frame, code=cv2.COLOR_BGR2GRAY)
+                    
+                    # pixel coords of left cam
+                    start_row, start_col = int(0), int(0)
+                    end_row, end_col = int(h), int(w//2)
+                    cropped_left = gray[start_row:end_row , start_col:end_col]
+
+                    # pixel coords of right cam
+                    start_row, start_col = int(0), int(w//2)
+                    end_row, end_col = int(h), int(w)
+                    cropped_right = gray[start_row:end_row , start_col:end_col]
+
+                    cropped_left = cv2.resize(cropped_left, (int(w//2),int(h)))
+                    cropped_right = cv2.resize(cropped_right, (int(w//2),int(h)))
+
+                    out1.write(cropped_left)
+                    out2.write(cropped_right)
+
+                    if cv2.waitKey(1) & 0xFF == ord('q'):
+                        break
+                else:
+                    break
+
+            cap.release()
+            out1.release()
+            out2.release()
+            cv2.destroyAllWindows()
+
+sv = split_vids(videos_dir_path, project_name)
+sv.video_file_splitter()
+
 dsf = del_single_frames(project_name)
 dsf.del_corner_singles()
 dsf.del_no_corner_images()
