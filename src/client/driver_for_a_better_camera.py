@@ -62,8 +62,8 @@ class WebcamVideoStream:
             print(self.stream.isOpened())
             self.width = width
             self.height = height
-            ret1 = self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 1280) #640
-            ret2 = self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 480) # 360
+            ret1 = self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 640) #640
+            ret2 = self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 360) # 360
             # ret2 = self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
             # ret1 = self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
             # ret2 = self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
@@ -142,16 +142,16 @@ class WebcamVideoStream:
 class Recoder():
 
     def __init__(self, savePath='test.avi', show=False, vs=None):
-        self.width = 1280
-        self.height = 480
+        self.width = 640
+        self.height = 360
         self.fourcc = cv2.VideoWriter_fourcc(*'MJPG')
         # self.writer = cv2.VideoWriter(savePath, self.fourcc, 100.0, (1280, 720), False)
         # self.writer = cv2.VideoWriter(savePath, self.fourcc, 60.0, (1280, 720), False)
-        self.writer = cv2.VideoWriter(savePath, self.fourcc, 60.0, (1280, 480), False) # changed from 640, 360, fps was 60 then was 640, 240... was last working with this line
+        # self.writer = cv2.VideoWriter(savePath, self.fourcc, 60.0, (1280, 480), False) # changed from 640, 360, fps was 60 then was 640, 240... was last working with this line
         self.recording_w = int(self.width//2 + self.width//5) - int(self.width//2 - self.width//5.5)
         self.recording_h = int(self.height) - int(self.height//2 - self.height//5.5)
-        self.writer = cv2.VideoWriter(savePath, self.fourcc, 60.0, (self.recording_w, self.recording_h), False)
-        # self.writer = cv2.VideoWriter(savePath, self.fourcc, 60.0, (1280, 480), False) # changed from 640, 360
+        # self.writer = cv2.VideoWriter(savePath, self.fourcc, 60.0, (self.recording_w, self.recording_h), False)
+        self.writer = cv2.VideoWriter(savePath, self.fourcc, 60.0, (640, 360), False)
         self.stopped = False
         self.FPS = FPS_camera()
         self.vs = vs
@@ -195,11 +195,11 @@ class Recoder():
 
             # pixel coords for cropping frame
             # note: you can comment this block of code out to record the entire fov of the lenses
-            start_row, start_col = int(self.height//2 - self.height//5.5), int(self.width//2 - self.width//5.5)
-            end_row, end_col = int(self.height), int(self.width//2 + self.width//5)
-            frame = frame[start_row:end_row , start_col:end_col]
+            # start_row, start_col = int(self.height//2 - self.height//5.5), int(self.width//2 - self.width//5.5)
+            # end_row, end_col = int(self.height), int(self.width//2 + self.width//5)
+            # frame = frame[start_row:end_row , start_col:end_col]
 
-            cv2.putText(frame, msg, (50, 80), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255)) #  		
+            # cv2.putText(frame, msg, (50, 80), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255)) #  		
 
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             if not self.show:
