@@ -22,7 +22,7 @@ def gen_profile(mouseName):
     mouseNumber = mouseName[len(mouseName) - 1]
     difficulty = "0"
     paw = "LEFT"
-    sessionNumber = "2000"
+    sessionNumber = "1"
 
     os.mkdir(".."+os.sep+".."+os.sep+"AnimalProfiles"+os.sep+ str(mouseName))
     os.mkdir(".."+os.sep+".."+os.sep+"AnimalProfiles"+os.sep+ str(mouseName) +os.sep+"Analyses")
@@ -35,6 +35,7 @@ def gen_profile(mouseName):
     saveFile.write(str(mouseName) + "\n")
     saveFile.write(str(mouseNumber) + "\n")
     saveFile.write(str(cageNumber) + "\n")
+    saveFile.write(str(difficulty) + "\n")
     saveFile.write(str(difficulty) + "\n")
     saveFile.write(str(difficulty) + "\n")
     saveFile.write(str(paw) + "\n")
