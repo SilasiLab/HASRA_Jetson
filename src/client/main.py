@@ -1,6 +1,6 @@
 """
-    Author: Julian Pitney, Junzheng Wu
-    Email: JulianPitney@gmail.com, jwu220@uottawa.ca
+    Author: Julian Pitney, Junzheng Wu, Gavin Heidenreich
+    Email: JulianPitney@gmail.com, jwu220@uottawa.ca, gheidenr@uottawa.ca
     Organization: University of Ottawa (Silasi Lab)
 """
 
@@ -15,11 +15,16 @@ import os
 import datetime
 from driver_for_a_better_camera import *
 from googleDriveManager import is_locked
+from port_scan import get_com_ports
 import numpy as np
-from detector import Detector
+# from detector import Detector
 import sys
 
-D = Detector("model/model.h5")
+chance_of_save = 1
+
+ard_port, rfid_port = get_com_ports()
+
+# D = Detector("model/model.h5")
 systemCheck.check_directory_structure()
 # Load all configuration information for running the system.
 # Note: Configuration information for data analysis does not come from here.
@@ -318,9 +323,9 @@ class SessionController(object):
         print("saved as :"+vidPath)
         if "TEST" in profile.name:
             print("Its testing")
-            p = Popen(["python", "driver_for_a_better_camera.py", "--c", str(0), "--p", tempPath, "--t", "True"], stdin=PIPE, stdout=PIPE)
+            p = Popen(["python3", "driver_for_a_better_camera.py", "--c", str(0), "--p", tempPath, "--t", "True"], stdin=PIPE, stdout=PIPE)
         else:
-            p = Popen(["python", "driver_for_a_better_camera.py", "--c", str(0), "--p", tempPath, "--t", "False"], stdin=PIPE, stdout=PIPE)
+            p = Popen(["python3", "driver_for_a_better_camera.py", "--c", str(0), "--p", tempPath, "--t", "False"], stdin=PIPE, stdout=PIPE)
         # Tell server to move stepper to appropriate position for current profile
         self.arduino_client.serialInterface.write(b'3')
 
@@ -351,47 +356,48 @@ class SessionController(object):
             except OSError as e:
                 return False
 
-        def detect(p):
-            '''
-            Wait for real code
-            :return:
-            '''
-            if os.path.exists("detection_frame.jpg"):
-                os.remove("detection_frame.jpg")
-            p.stdin.write(b"detect\n")
-            p.stdin.flush()
-
-            while not check_deetction_frame():
-                time.sleep(0.1)
-            img = cv2.imread("detection_frame.jpg")
-            print(img.shape)
-            time.sleep(1)
-
-            return D.predict_in_real_use(img)
-
+        # def detect(p):
+        #     '''
+        #     Wait for real code
+        #     :return:
+        #     '''
+        #     if os.path.exists("detection_frame.jpg"):
+        #         os.remove("detection_frame.jpg")
+        #     p.stdin.write(b"detect\n")
+        #     p.stdin.flush()
+        #
+        #     while not check_deetction_frame():
+        #         time.sleep(0.1)
+        #     img = cv2.imread("detection_frame.jpg")
+        #     print(img.shape)
+        #     time.sleep(1)
+        #
+        #     return D.predict_in_real_use(img)
+	
+	# raise times were all set to 4 before
         time.sleep(6)
         while True:
             if self.predict:
-                if (datetime.datetime.now() - raise_moment).seconds >= 4:
+                if (datetime.datetime.now() - raise_moment).seconds >= 7:
                     # SEED_FLAG = detect(p)
                     SEED_FLAG = False
                 if not SEED_FLAG:
                     self.arduino_client.serialInterface.write(b'1')
                     self.arduino_client.serialInterface.flushOutput()
                     trial_count += 1
-                    time.sleep(4)
-                    if detect(p):
-                        SEED_FLAG = False # do cycling all the time
-                        if "TEST" in profile.name:
-                            SEED_FLAG = False
-                        raise_moment = datetime.datetime.now()
-                        display_time_stamp_list.append(raise_moment)
-                        successful_count += 1
-                    else:
-                        SEED_FLAG = False
+                    time.sleep(7)
+                    # if detect(p):
+                    #     SEED_FLAG = False # do cycling all the time
+                    #     if "TEST" in profile.name:
+                    #         SEED_FLAG = False
+                    #     raise_moment = datetime.datetime.now()
+                    #     display_time_stamp_list.append(raise_moment)
+                    #     successful_count += 1
+                    # else:
+                    #     SEED_FLAG = False
                 print("Total trial: %d, successful trial: %d, Percentage; %.3f" % (trial_count, successful_count, float(successful_count) / float(trial_count)))
             else:
-                if (datetime.datetime.now() - raise_moment).seconds >= 5:
+                if (datetime.datetime.now() - raise_moment).seconds >= 7:
                     if profile.dominant_hand == "LEFT":
                         self.arduino_client.serialInterface.write(b'1')
                     elif profile.dominant_hand == "RIGHT":
@@ -416,8 +422,8 @@ class SessionController(object):
 
         p.stdin.write(b"stop\n")
         p.stdin.flush()
-        for line in p.stdout.readlines():
-            print(line)
+	for line in p.stdout.readlines():
+	    print(line)
         # Log session information.
         while is_locked(tempPath):
             time.sleep(1)
@@ -426,6 +432,18 @@ class SessionController(object):
             os.remove(tempPath)
         else:
             os.rename(tempPath, vidPath)
+
+	random_draw = random.randint(1, chance_of_save)
+	print('1/{} downsample'.format(chance_of_save))
+	if random_draw != 1:
+	    print('{} drawn. Video deleted'.format(random_draw))
+	    os.remove(vidPath)
+        else:
+	    print('1 drawn. Video saved')
+
+        for line in p.stdout.readlines():
+            print(line)
+
         endTime = time.time()
         profile.insertSessionEntry(startTime, endTime, trial_count, successful_count)
         profile.insertDisplay(display_time_stamp_list)
@@ -442,6 +460,7 @@ def scale_stepper_dist(distance):
         return simple_dict[distance]
 # Just a wrapper to launch the configuration GUI in its own process.
 def launch_gui():
+    return 1
     gui_process = multiprocessing.Process(target=gui.start_gui_loop, args=(PROFILE_SAVE_DIRECTORY,))
     gui_process.start()
     return gui_process
@@ -456,11 +475,14 @@ def sys_init():
         COM1 = str(sys.argv[1])
         COM2 = str(sys.argv[2])
     else:
-        COM1 = '8'
-        COM2 = '6'
+        COM1 = '1'
+        COM2 = '2'
     print('If your program is stuck here please check COM port configuration in main.pys sys_init func')
-    arduino_client = arduinoClient.client("COM" + COM1, 9600)
-    ser = serial.Serial('COM' + COM2, 9600)
+    # arduino_client = arduinoClient.client("COM" + COM1, 9600)
+    # ser = serial.Serial('COM' + COM2, 9600)
+
+    arduino_client = arduinoClient.client(ard_port, 9600)
+    ser = serial.Serial(rfid_port, 9600)
 
     guiProcess = launch_gui()
     session_controller = SessionController(profile_list, arduino_client)

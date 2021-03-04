@@ -18,6 +18,7 @@ import argparse
 import platform
 import pickle
 import os
+import sys
 
 
 DETECT_FLAG = False
@@ -53,7 +54,7 @@ class FPS_camera:
 
 
 class WebcamVideoStream:
-    def __init__(self, src=0, width=1280, height=720):
+    def __init__(self, src=0, width=640, height=360):
     # def __init__(self, src=0, width=640, height=240):
 
         # If you are under windows system using Dshow as backend
@@ -64,31 +65,14 @@ class WebcamVideoStream:
             self.height = height
             ret1 = self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 640) #640
             ret2 = self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 360) # 360
-            # ret2 = self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
-            # ret1 = self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
-            # ret2 = self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
             ret3 = self.stream.set(cv2.CAP_PROP_AUTO_EXPOSURE, 5) # was 0.25
             ret4 = self.stream.set(cv2.CAP_PROP_EXPOSURE, -7) # -5 == 2**-5 == 1/32 seconds
-            # ret4 = self.stream.set(cv2.CAP_PROP_EXPOSURE, -11)
+
         # If not go next line
         else:
-            self.stream = cv2.VideoCapture(src)
+            # run v4l2-ctl -d /dev/video0 --list-ctrls to see list of available settings and argument ranges
+            self.stream = cv2.VideoCapture(self.gstreamer_pipeline(),  cv2.CAP_GSTREAMER)
             print(self.stream.isOpened())
-            self.width = width
-            self.height = height
-            ret1 = self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
-            ret2 = self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
-            ret3 = self.stream.set(cv2.CAP_PROP_AUTO_EXPOSURE, -5) # was 0.25
-            print("camera")
-            ret4 = self.stream.set(cv2.CAP_PROP_EXPOSURE, 0.001)
-
-
-
-        ret5 = self.stream.set(cv2.CAP_PROP_AUTOFOCUS, 0)
-        ret6 = self.stream.set(cv2.CAP_PROP_BRIGHTNESS, 0.0)
-        ret7 = self.stream.set(cv2.CAP_PROP_FPS, 60) # was 60
-        ret8 = self.stream.set(cv2.CAP_PROP_CONTRAST, 0)
-        print(ret1, ret2, ret3, ret4, ret5, ret6, ret7, ret8)
 
         (self.grabbed, self.frame) = self.stream.read()
         self.thread = None
@@ -97,6 +81,37 @@ class WebcamVideoStream:
         self.stopped = False
         self.flag = False
         self.FPS = FPS_camera()
+
+    def gstreamer_pipeline(self,
+            sensor_id=0,
+            sensor_mode=4,
+            capture_width=1280,
+            capture_height=720,
+            display_width=640,
+            display_height=360,
+            framerate=60,
+            flip_method=0,
+    ):
+        return (
+                "nvarguscamerasrc sensor-id=%d sensor-mode=%d ! "
+                "video/x-raw(memory:NVMM), "
+                "width=(int)%d, height=(int)%d, "
+                "format=(string)NV12, framerate=(fraction)%d/1 ! "
+                "nvvidconv flip-method=%d ! "
+                "video/x-raw, width=(int)%d, height=(int)%d, format=(string)BGRx ! "
+                "videoconvert ! "
+                "video/x-raw, format=(string)BGR ! appsink -e"
+                % (
+                    sensor_id,
+                    sensor_mode,
+                    capture_width,
+                    capture_height,
+                    framerate,
+                    flip_method,
+                    display_width,
+                    display_height,
+                )
+        )
 
     def start(self):
         # start the thread to read frames from the video stream
@@ -140,18 +155,12 @@ class WebcamVideoStream:
 
 
 class Recoder():
-
     def __init__(self, savePath='test.avi', show=False, vs=None):
         self.width = 640
         self.height = 360
         self.fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-        # self.writer = cv2.VideoWriter(savePath, self.fourcc, 100.0, (1280, 720), False)
-        # self.writer = cv2.VideoWriter(savePath, self.fourcc, 60.0, (1280, 720), False)
-        # self.writer = cv2.VideoWriter(savePath, self.fourcc, 60.0, (1280, 480), False) # changed from 640, 360, fps was 60 then was 640, 240... was last working with this line
-        self.recording_w = int(self.width//2 + self.width//5) - int(self.width//2 - self.width//5.5)
-        self.recording_h = int(self.height) - int(self.height//2 - self.height//5.5)
-        # self.writer = cv2.VideoWriter(savePath, self.fourcc, 60.0, (self.recording_w, self.recording_h), False)
-        self.writer = cv2.VideoWriter(savePath, self.fourcc, 60.0, (640, 360), False)
+        self.fps = 60
+        self.writer = cv2.VideoWriter(savePath, self.fourcc, self.fps, (640, 360), False)
         self.stopped = False
         self.FPS = FPS_camera()
         self.vs = vs
@@ -159,11 +168,6 @@ class Recoder():
         self.show = show
         self.flag = False
         self.process = None
-
-        #  Socket to talk to server
-        # print("Connecting to hello world server…")
-        # self.socket = context.socket(zmq.REQ)
-        # self.socket.connect("tcp://127.0.0.1:5555")
 
     def recording(self):
         self.FPS = self.FPS.start()
@@ -175,7 +179,6 @@ class Recoder():
         w = 1280
 
         prevTime = 0
-
         while True:
             time_iter_start = datetime.datetime.now()
             if self.stopped:
@@ -189,17 +192,7 @@ class Recoder():
 
             msg = "FPS : %0.1f" % fps #
 
-            frame = self.vs.read()
-
-
-
-            # pixel coords for cropping frame
-            # note: you can comment this block of code out to record the entire fov of the lenses
-            # start_row, start_col = int(self.height//2 - self.height//5.5), int(self.width//2 - self.width//5.5)
-            # end_row, end_col = int(self.height), int(self.width//2 + self.width//5)
-            # frame = frame[start_row:end_row , start_col:end_col]
-
-            # cv2.putText(frame, msg, (50, 80), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255)) #  		
+            frame = self.vs.read()	
 
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             if not self.show:
@@ -216,7 +209,7 @@ class Recoder():
                     break
             time_iter_end = datetime.datetime.now()
             iteration = float((time_iter_end - time_iter_start).microseconds) * 1e-6
-            time.sleep(max((1.0 / 60. - iteration), 0))
+            time.sleep(max((1.0 / self.fps - iteration), 0))
 
         self.writer.release()
         self.vs.stream.release()
@@ -232,7 +225,6 @@ class Recoder():
         return self
 
     def stop(self):
-
         self.FPS.stop()
         print("[INFO] elasped time: {:.2f}".format(self.FPS.elapsed()))
         print("[INFO] approx. FPS: {:.2f}".format(self.FPS.fps()))
@@ -274,6 +266,7 @@ def record_main(camera_src, video_path, show=False):
 
 if __name__ == '__main__':
     DEBUG = False
+    print(sys.version_info)
 
     if not DEBUG:
         parser = argparse.ArgumentParser()
@@ -285,12 +278,15 @@ if __name__ == '__main__':
         video_path = args.video_path
         test = args.test
         if test == "True":
-            record_main(int(camera_index), video_path, show=True)
+            # record_main(int(camera_index), video_path, show=True)
+            record_main('/dev/video0', video_path, show=True)
+
         else:
-            record_main(int(camera_index), video_path, show=False)
+            record_main('/dev/video0', video_path, show=False)
+            # record_main(int(camera_index), video_path, show=False)
 
 
     else:
-        record_main(0, '1.avi', show=True)
-
+        # record_main(0, '1.avi', show=True)
+        record_main('/dev/video0', '1.avi', show=False)
 

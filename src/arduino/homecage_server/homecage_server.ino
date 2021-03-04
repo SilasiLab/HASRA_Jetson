@@ -38,6 +38,7 @@ int SERVO1_DOWN_POS = 160;
 
 float swing_arm_radius=48.85;
 
+// pulse delay was set at 16
 int SERVO_PULSE_DELAY = 16;
 int servo1Pos = SERVO1_DOWN_POS;
 bool interupt = false;
@@ -166,6 +167,7 @@ int displayPellet() {
     if (digitalRead(IRBreakerPin)){
       servo1.detach();return 0;}
     servo1.write(i);
+    servo1Pos = i;
     //delay(SERVO_PULSE_DELAY);
     if (my_delay(SERVO_PULSE_DELAY) == 0){servo1.detach();return 0;}
   }   
@@ -175,13 +177,18 @@ int displayPellet() {
   for (int i = SERVO1_DOWN_POS; i >= SERVO1_UP_POS; i -= 1) {
     if (digitalRead(IRBreakerPin)){servo1.detach();return 0;}
     servo1.write(i);
+    servo1Pos = i;
     //delay(SERVO_PULSE_DELAY);
     if (my_delay(SERVO_PULSE_DELAY) == 0){servo1.detach();return 0;}
   }  
-  
+  // delay(30);
   if (my_delay(SERVO_SETTLE_DELAY) == 0){servo1.detach();return 0;}
 
-  servo1Pos = SERVO1_UP_POS;
+//  if (interupt){
+//    servo1.detach();return 0;
+//  }
+
+  // servo1Pos = SERVO1_UP_POS;
   servo1_up_flag = true;
   servo1.detach();
   return 1;
@@ -426,6 +433,8 @@ void test_servo(){
   zeroServos();
 }
 
+// moveStepper_both(7, 11, 0);
+
 void test_stepper(){
   zeroStepper_both();
   moveStepper_both(7, 11, 0);
@@ -434,7 +443,12 @@ void test_stepper(){
 void loop(){
   boolean DEBUG = false;
   if(DEBUG){
+    displayPellet();
+    test_stepper();
+    zeroServos();
+    // moveStepper_both(0, 5, 0);
     zeroStepper_both();
+    // zeroServos();
 
 
     digitalWrite(digitalSwitchPin, HIGH);
@@ -447,10 +461,11 @@ void loop(){
     Serial.write("TERM\n");
     digitalWrite(digitalSwitchPin, LOW);
     zeroServos();
-    displayPellet();
-    zeroServos();
-    test_servo();
-    test_stepper();
+    zeroStepper_both();
+    // displayPellet();
+    // zeroServos();
+    // test_servo();
+    // test_stepper();
 
     
     }
