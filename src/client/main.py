@@ -19,6 +19,7 @@ from port_scan import get_com_ports
 import numpy as np
 # from detector import Detector
 import sys
+import random
 
 chance_of_save = 1
 
@@ -422,8 +423,8 @@ class SessionController(object):
 
         p.stdin.write(b"stop\n")
         p.stdin.flush()
-	for line in p.stdout.readlines():
-	    print(line)
+        for line in p.stdout.readlines():
+            print(line)
         # Log session information.
         while is_locked(tempPath):
             time.sleep(1)
@@ -433,16 +434,13 @@ class SessionController(object):
         else:
             os.rename(tempPath, vidPath)
 
-	random_draw = random.randint(1, chance_of_save)
-	print('1/{} downsample'.format(chance_of_save))
-	if random_draw != 1:
-	    print('{} drawn. Video deleted'.format(random_draw))
-	    os.remove(vidPath)
+        random_draw = random.randint(1, chance_of_save)
+        print('1/{} downsample'.format(chance_of_save))
+        if random_draw != 1:
+            print('{} drawn. Video deleted'.format(random_draw))
+            os.remove(vidPath)
         else:
-	    print('1 drawn. Video saved')
-
-        for line in p.stdout.readlines():
-            print(line)
+            print('1 drawn. Video saved')
 
         endTime = time.time()
         profile.insertSessionEntry(startTime, endTime, trial_count, successful_count)
