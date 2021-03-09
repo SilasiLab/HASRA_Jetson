@@ -4,7 +4,7 @@
     Organization: University of Ottawa (Silasi Lab)
 """
 
-import gui
+# import gui
 import arduinoClient
 import systemCheck
 import time
@@ -459,9 +459,9 @@ def scale_stepper_dist(distance):
 # Just a wrapper to launch the configuration GUI in its own process.
 def launch_gui():
     return 1
-    gui_process = multiprocessing.Process(target=gui.start_gui_loop, args=(PROFILE_SAVE_DIRECTORY,))
-    gui_process.start()
-    return gui_process
+    # gui_process = multiprocessing.Process(target=gui.start_gui_loop, args=(PROFILE_SAVE_DIRECTORY,))
+    # gui_process.start()
+    # return gui_process
 
 
 # This function initializes all the high level system components, returning a handle to each one.
