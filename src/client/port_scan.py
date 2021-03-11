@@ -7,8 +7,9 @@ def get_com_ports():
     rfid_port = 'COMx'
 
     ports = list(serial.tools.list_ports.comports())
+    print([x.description for x in ports])
     for p in ports:
-        if 'USB Serial' in p.description:
+        if 'Serial' in p.description:
             ard_port = p[0]
         if 'UART' in p.description:
             rfid_port = p[0]
