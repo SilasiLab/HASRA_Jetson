@@ -65,21 +65,12 @@ https://github.com/SilasiLab/HomeCageSinglePellet_server/blob/master/Homecage%20
 
 
 # **Usage**:
-### **Running the Device**
-1. Enter the virtual environment that the system was installed in by typing `conda activate <my_env>` into a terminal.
+### **Running on Jetson with system install**
+1. if it's your first time running HASRA on this device you need to run $ cd /home/$USER/HASRA_Jetson && mkdir AnimalProfiles
+2. cd into src/client with $ cd /home/$USER/HASRA_Jetson/src/client
+3. run the genprofiles script with $ python3 genProfiles.py
 
-2. Optional: Use `cd` to navigate to` HomeCageSinglePellet_server/src/client/` and then run `python -B genProfiles.py`. The text prompts will walk you through entering your new animals into the system. Since the folder and the file are already inclued in this repo, this step is optional.
-
-3. Open HomeCageSinglePellet_server/config/config.txt and set the system configuration you want.
-
-4. Find the COM port ids for Arduino and RFID reader, using `mode` command in terminal.
-(In linux: Arduino needs to be USB0 , and RFID reader needs to be USB1. You can see connected USB devices with terminal command:
-ls /dev/tty* and You need to replace the COMs in main.py -> `sys_init()` function manually.) 
-  
-5. Open a termanal and run following command:
-* `cd \your\path\to\HomeCageSinglePellet_server\src\client\`
-* `conda activate YourEnvironment` replace YourEnvironment by the name of your environment.
-* `python main.py COM-arduino COM-RFID` replace COM-arduino and COM-RFID by the COM ids of Arduino and RFID respectively.
+# **Troubleshooting**:
 
 
 6. Optional: If you have a google file stream mounted on this computer, you can choose to upload all the viedos and log files to google drive. You need firstly find out the local path to this google drive folder, in this case it is: `G:\Shared drives\SilasiLabGdrive`.
