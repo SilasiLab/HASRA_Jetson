@@ -7,56 +7,44 @@ The design allows a single mouse at a time to enter the reaching tube. Upon entr
 For further analyse, you can check the repository posted here:
 https://github.com/SilasiLab/HomecageSinglePellet_Manual
 
+# **Software Installation Jetson/ARM:**
 
+1. Put sd card into host machine
+2. Make sure the contents of the sd can be deleted… ie back them up on the host machine if you need them or aren’t sure
+3. Use disks utility to format sd card
+4. https://developer.nvidia.com/jetson-nano-sd-card-image
+Download nano sd card image from the nvidia downloads page… link above\
+5. $ /usr/bin/unzip -p ~/Downloads/jetson_nano_devkit_sd_card.zip | sudo /bin/dd of=/dev/sd<x> bs=1M status=progress
+6. Use your file manager to eject the sd card once the above process is complete
+7. Put a jumper on your nano to allow for power from the barrel jack
+8. Put in the sd and give your nano power
+9. Allocate all the remaining blocks in your sd to your home fs
+10. Go through the setup normally… make a user and pw, etc
+11. $ sudo apt-get update && apt-get upgrade
+12. $ sudo apt install git-all
+13. $ git clone https://github.com/silasilab/hasra_jetson.git
+14. $ git clone https://github.com/JetsonHacksNano/CSI-Camera.git
+15. $ git clone https://github.com/jetsonhacks/jetsonUtilities.git
+16. $ sudo -H pip3 install -U jetson-stats
+17. Reboot
+18. Dont pip install requirements.txt…
+	 - $ pip3 install pyserial
+	 - $ pip3 install psutil
+19.Remove all function calls in main.py that’re dependent on tk
+20. $ sudo apt install libcanberra-gtk-module libcanberra-gtk3-module
+21. Setup is_running
+	- $ cd ~
+	- $ vim is_running.sh
+	Write: #!/bin/bash
+		pgrep -af main.py
+22. Put below line in bashrc
+	- $ alias is_running=’/home/homecage24/is_running.sh’
+23. Setup rclone by running and going through the steps:
+	- $ rclone config
+24. Setup cronjobs to run rclone commands to send files to cloud storage
+	- $ crontab -e
+25. You should also download and install the arduino IDE for if you need to change code on the arduino. Keep in mind that some arduino nanos may use the old bootloader and that you will have to switch this in the IDE if you run into problems when trying to upload code to your arduino.
 
-
-
-# **Dependencies:**
-* Ubuntu v16.04 LTS: Kernel version 4.4.19-35 or later
-* Or Windows 10 is recommended, since the backend camera driver performs better that the one on linux in our experiment.
-* Anaconda 3 environment, for the dependancies without a version number, it means there is no specific requirement on it. 
-	* Python==3.6.10
-	* pySerial==3.4	
-	* numpy==1.18.1
-	* OpenCV=4.1.2 (A whl file is provided under requirment folder.)
-	* tkinter=8.6.8
-	* matplotlib=3.1.3
-	* Pillow
-	* tqdm
-	* tensorflow=1.10.0
-	* keras=2.2.4
-	* psutil
-	* multiprocessing
-	* subprocess
-	
-* Arduino IDE v1.8.5
-
-# **Software Installation:**
-1. Windows 10 is strongly recommended for a better support of camera driver. Ubuntu 16.04 LTS is alternative.
-2. Install Anaconda. (https://www.anaconda.com/distribution/)
-3. Install Arduino IDE v1.8.5. (https://www.arduino.cc/en/Main/Software)
-	
-4. Create and configure a virtual environment for installing the HomeCageSinglePellet code.
-	- `conda create -n <yourenvname> python=3.6.10 anaconda`
-	- `conda activate <yourenvname>`
-	- `conda install -c anaconda numpy==1.18.1`
-	- `conda install -c anaconda pyserial==3.4`
-	- `conda install -c anaconda tk==8.6.8`
-	- `conda install -c conda-forge matplotlib`
-	- `conda install tqdm`
-	- `conda install Pillow`
-	- `conda install tensorflow==1.10.0`
-	- `conda install keras==2.2.4`
-	- `pip install psutil`
-	
-
-5. `git clone https://github.com/SilasiLab/HomeCageSinglePellet_server.git`
-6. `pip install /path/to/HASRA/dependencies/opencv_python-4.1.2+contrib-cp36-cp36m-win_amd64.whl`
-7. Add ID of cage to the name of folder as postfix. (Rname the folder of the downloaded reporsitory as HASRA_[id]).
-8. Create folders and profiles of the animals by running the  `genProfiles.py `
-	- `conda activate [name of your environment]`
-	- `cd /path/to/HASRA/src/client`
-	- `python genProfiles.py`
 # **Assembly:**
 
 The detailed assembly manual can be found here:
@@ -69,6 +57,7 @@ https://github.com/SilasiLab/HomeCageSinglePellet_server/blob/master/Homecage%20
 1. if it's your first time running HASRA on this device you need to run $ cd /home/$USER/HASRA_Jetson && mkdir AnimalProfiles
 2. cd into src/client with $ cd /home/$USER/HASRA_Jetson/src/client
 3. run the genprofiles script with $ python3 genProfiles.py
+4. to start the task run $ cd /home/$USER/HASRA_Jetson/src/client && python3 main.py
 
 # **Troubleshooting**:
 
