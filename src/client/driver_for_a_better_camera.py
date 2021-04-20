@@ -1,6 +1,6 @@
 """
-    Author: Junzheng Wu
-    Email: jwu220@uottawa.ca
+    Author: Junzheng Wu, Gavin Heidenreich
+    Email: jwu220@uottawa.ca, gheidenr@uottawa.ca
     Organization: University of Ottawa (Silasi Lab)
 
     To increase FPS, the whole stream is divided into two parallel threads.
@@ -122,6 +122,7 @@ class WebcamVideoStream:
         return self
 
     def update(self):
+
         # keep looping infinitely until the thread is stopped
         while True:
             # if the thread indicator variable is set, stop the thread
@@ -177,7 +178,7 @@ class Recoder():
 
         h = 480
         w = 1280
-
+        cnt = 0
         prevTime = 0
         while True:
             time_iter_start = datetime.datetime.now()
@@ -193,11 +194,11 @@ class Recoder():
             msg = "FPS : %0.1f" % fps #
 
             frame = self.vs.read()	
-
+            cnt += 1
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             if not self.show:
                 self.writer.write(gray)
-            if DETECT_FLAG:
+            if DETECT_FLAG or cnt % 30 == 0:
                 cv2.imwrite("detection_frame.jpg", gray)
                 DETECT_FLAG = False
             self.FPS.update()
@@ -254,7 +255,9 @@ def record_main(camera_src, video_path, show=False):
     print("[INFO] sampling THREADED frames from webcam...")
     vs = WebcamVideoStream(src=camera_src).start()
     r = Recoder(savePath=video_path, vs=vs, show=show).start()
+
     while True:
+
         signal = input()
         if signal == "stop":
             vs.stop()

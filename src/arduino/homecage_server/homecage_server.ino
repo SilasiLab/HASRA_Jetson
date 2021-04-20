@@ -443,6 +443,7 @@ void test_stepper(){
 void loop(){
   boolean DEBUG = false;
   if(DEBUG){
+    
     displayPellet();
     test_stepper();
     zeroServos();
@@ -455,17 +456,21 @@ void loop(){
   }
   else{
     if(listenForStartCommand()){
+    zeroStepper_both();
     digitalWrite(digitalSwitchPin, HIGH);
     digitalWrite(ledPin, LOW);
     startSession();
     Serial.write("TERM\n");
     digitalWrite(digitalSwitchPin, LOW);
+    //delay(500);
     zeroServos();
     zeroStepper_both();
-    // displayPellet();
-    // zeroServos();
-    // test_servo();
-    // test_stepper();
+    delayMicroseconds(500);
+    zeroStepper_both();
+    //displayPellet();
+    //zeroServos();
+    //test_servo();
+    //test_stepper();
 
     
     }
