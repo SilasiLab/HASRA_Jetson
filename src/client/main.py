@@ -23,9 +23,12 @@ from collections import deque
 lower_bound = 100
 upper_bound = 650
 
+use_contrast_predict = False
+
 d_len = 3
 threshold = 2
 
+# 1/x vids will get saved... use this to downsample
 chance_of_save = 1
 
 ard_port, rfid_port = get_com_ports()
@@ -263,7 +266,6 @@ class SessionController(object):
 
         self.profile_list = profile_list
         self.arduino_client = arduino_client
-        self.predict = True
 
     def set_profile_list(self, profileList):
 
@@ -366,7 +368,7 @@ class SessionController(object):
 	# raise times were all set to 4 before
         time.sleep(6)
         while True:
-            if self.predict:
+            if use_contrast_predict:
                 if SEED_FLAG and check_deetction_frame():
                     frame = cv2.imread('detection_frame.jpg')
                     if frame is not None:
@@ -393,16 +395,14 @@ class SessionController(object):
                 #print("Total trial: %d, successful trial: %d, Percentage; %.3f" % (trial_count, successful_count, float(successful_count) / float(trial_count)))
             else:
                 if (datetime.datetime.now() - raise_moment).seconds >= 7:
-                    if profile.dominant_hand == "LEFT":
-                        self.arduino_client.serialInterface.write(b'1')
-                    elif profile.dominant_hand == "RIGHT":
-                        self.arduino_client.serialInterface.write(b'2')
-                    elif profile.dominant_hand == "BOTH":
-                        self.arduino_client.serialInterface.write(b'4')
-                    raise_moment = datetime.datetime.now()
+                    self.arduino_client.serialInterface.write(b'1')
+                    self.arduino_client.serialInterface.flushOutput()
                     trial_count += 1
+                    raise_moment = datetime.datetime.now()
                     display_time_stamp_list.append(raise_moment)
-                    time.sleep(1)
+                    time.sleep(2)
+                else:
+                    time.sleep(0.5)
 
             # Check if message has arrived from server, if it has, check if it is a TERM message.
             if self.arduino_client.serialInterface.in_waiting > 0:
