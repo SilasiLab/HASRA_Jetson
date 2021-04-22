@@ -1,1 +1,1 @@
-cron can't access variables so you need to replace all the instances of $USER with your actual username
+Cron can't access variables so you need to replace all the instances of $USER with your actual username if you want them to be run with cron. If you want to just run them in a terminal session you don't need to do this.
