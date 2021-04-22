@@ -1,0 +1,18 @@
+# copy paste this into your crontabs file
+# note that you need to have your rclone remote name "GoogleDrive" and rclone has to be installed at the below path
+
+*/2 * * * * /usr/bin/rclone move /home/$USER/HASRA_Jetson/AnimalProfiles/MOUSE1/Videos GoogleDrive:/MOUSE1/Videos --create-empty-src-dirs
+*/10 * * * * /usr/bin/rclone move /home/$USER/HASRA_Jetson/AnimalProfiles/MOUSE2/Videos GoogleDrive:/MOUSE2/Videos --create-empty-src-dirs
+*/10 * * * * /usr/bin/rclone move /home/$USER/HASRA_Jetson/AnimalProfiles/MOUSE3/Videos GoogleDrive:/MOUSE3/Videos --create-empty-src-dirs
+*/10 * * * * /usr/bin/rclone move /home/$USER/HASRA_Jetson/AnimalProfiles/MOUSE4/Videos GoogleDrive:/MOUSE4/Videos --create-empty-src-dirs
+*/10 * * * * /usr/bin/rclone move /home/$USER/HASRA_Jetson/AnimalProfiles/MOUSE5/Videos GoogleDrive:/MOUSE5/Videos --create-empty-src-dirs
+
+*/10 * * * * /usr/bin/rclone sync /home/$USER/HASRA_Jetson/AnimalProfiles/MOUSE1/Logs GoogleDrive:/MOUSE1/Logs --create-empty-src-dirs
+*/10 * * * * /usr/bin/rclone sync /home/$USER/HASRA_Jetson/AnimalProfiles/MOUSE2/Logs GoogleDrive:/MOUSE2/Logs --create-empty-src-dirs
+*/10 * * * * /usr/bin/rclone sync /home/$USER/HASRA_Jetson/AnimalProfiles/MOUSE3/Logs GoogleDrive:/MOUSE3/Logs --create-empty-src-dirs
+*/10 * * * * /usr/bin/rclone sync /home/$USER/HASRA_Jetson/AnimalProfiles/MOUSE4/Logs GoogleDrive:/MOUSE4/Logs --create-empty-src-dirs
+*/10 * * * * /usr/bin/rclone sync /home/$USER/HASRA_Jetson/AnimalProfiles/MOUSE5/Logs GoogleDrive:/MOUSE5/Logs --create-empty-src-dirs
+
+
+@reboot /bin/bash /home/$USER/HASRA_Jetson/shell_scripts/upload_ip.sh
+@reboot /bin/bash /home/$USER/HASRA_Jetson/shell_scripts/run_task.sh > /home/$USER/event_log.txt 2>&1
