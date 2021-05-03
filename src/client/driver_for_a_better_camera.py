@@ -93,7 +93,7 @@ class WebcamVideoStream:
             flip_method=0,
     ):
         return (
-                "nvarguscamerasrc sensor-id=%d sensor-mode=%d ! "
+                "nvarguscamerasrc sensor-id=%d sensor-mode=%d aelock=true gainrange='1 1' ispdigitalgainrange='1 1' exposuretimerange='2000000 2000000' exposurecompensation=-2 ! "
                 "video/x-raw(memory:NVMM), "
                 "width=(int)%d, height=(int)%d, "
                 "format=(string)NV12, framerate=(fraction)%d/1 ! "
